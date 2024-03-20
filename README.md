@@ -1,6 +1,12 @@
 # TravelQuery App with React Native and Expo
 
-This project is a TravelQuery App built using React Native and Expo.
+Introducing "TravelQuery": Your Ultimate Travel Companion!
+
+Embark on your next adventure with confidence and ease using TravelQuery. Whether you're exploring a new city, venturing into the wilderness, or jetting off to exotic destinations, TravelQuery has you covered every step of the way.
+
+With TravelQuery, effortlessly plan your itinerary, discover exciting attractions, and navigate unfamiliar terrain with precision and convenience. But that's not all! TravelQuery goes beyond basic navigation by offering personalized recommendations and insider tips from local experts. Connect with trusted tourist guides directly through the app to gain valuable insights, book guided tours, and even access emergency assistance whenever needed.
+
+Download the app today and let your journey begin!
 
 <!-- ## Technologies Used
 
