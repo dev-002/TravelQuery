@@ -74,7 +74,9 @@ export default function Wishlist_Tab({ navigation }) {
             >
               <TouchableOpacity
                 className="mt-2 w-full rounded-md"
-                onPress={() => handleLogout()}
+                onPress={() =>
+                  navigation.navigate("ItemScreen", { param: list })
+                }
               >
                 <Image
                   source={{
