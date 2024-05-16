@@ -6,6 +6,9 @@ export default {
     register: baseURL + "/auth/register", // post
     login: baseURL + "/auth/login", // post
     logout: baseURL + "/auth/logout",
+    sendOTP: baseURL + "/auth/forget", // post
+    verifyOTP: baseURL + "/auth/verify", // post
+    changePass: baseURL + "/auth/change", // post
   },
   Place: {
     fetchPlace: baseURL + "/places", // :id

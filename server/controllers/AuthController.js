@@ -2,6 +2,7 @@ const User = require("../models/user");
 const Guide = require("../models/guide");
 const bcrypt = require("bcrypt");
 const CreateToken = require("../utility/CreateToken");
+const { AwsInstance } = require("twilio/lib/rest/accounts/v1/credential/aws");
 
 const login = async (req, res, next) => {
   const { role, password, mobile } = req.body;
@@ -70,4 +71,72 @@ const register = async (req, res, next) => {
   }
 };
 
-module.exports = { login, register };
+//
+let Temp_otp;
+const sendOTP = async (req, res, next) => {
+  const { mobile } = req.body;
+  try {
+    const client = require("twilio")(
+      process.env.TWILLO_SID,
+      process.env.TWILLO_TOKEN
+    );
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    Temp_otp = otp;
+    client.messages
+      .create({
+        body: otp,
+        to: mobile,
+        from: "+918755737078",
+      })
+      .then((message) => {
+        console.log(message.sid);
+        return res.status(200).json({ ack: true });
+      });
+  } catch (err) {
+    return res.status(500).json({ ack: false, err });
+  }
+};
+
+const verifyOTP = async (req, res, next) => {
+  const { otp } = req.body;
+  try {
+    if (Temp_otp == otp) return res.status(200).json({ ack: true });
+    else throw new Error("Wrong OTP");
+  } catch (err) {
+    return res.status(500).json({ ack: false, err });
+  }
+};
+
+const changePass = async (req, res, next) => {
+  const { newPass, mobile, role } = req.body;
+
+  try {
+    let user;
+    if (role == 2) {
+      user = await User.findOne({ mobile });
+    } else user = await Guide.findOne({ mobile });
+
+    if (user) {
+      user =
+        role == 2
+          ? await User.fingByIdAndUpdate(
+              user._id,
+              { $set: { password: newPass } },
+              { new: true }
+            )
+          : Guide.fingByIdAndUpdate(
+              user._id,
+              { $set: { password: newPass } },
+              { new: true }
+            );
+
+      if (user) return res.status(200).json({ ack: true, user });
+      else throw new Error("error while updating Pass");
+    } else throw new Error("User doesn't exist");
+  } catch (err) {
+    return res.status(500).json({ ack: false, err });
+  }
+};
+
+module.exports = { login, register, sendOTP, verifyOTP, changePass };
