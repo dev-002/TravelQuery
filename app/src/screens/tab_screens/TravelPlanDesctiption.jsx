@@ -17,6 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import PlacesModal from "./Plan_Tab/components/PlacesModal";
 import MembersModal from "./Plan_Tab/components/MemberModal";
 import GuidesModal from "./Plan_Tab/components/GuidesModal";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 
 export default function TravelPlanDesctiption({ route, navigation }) {
   const dataId = route?.params?.id;
@@ -86,6 +87,23 @@ export default function TravelPlanDesctiption({ route, navigation }) {
     }
   }
 
+  async function handleDelete() {
+    try {
+      setLoading(true);
+      const response = await axios.delete(URL.TravelPlan.removeTravelPlan, {
+        headers: { token: await AsyncStorage.getItem("token"), _id: dataId },
+      });
+      if (response.status === 200) {
+        navigation.navigate("Discover_Tab");
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.log("Error planning a trip", err);
+      Alert.alert("Error planning a trip");
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       async function fetchPlan() {
@@ -128,8 +146,15 @@ export default function TravelPlanDesctiption({ route, navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-white relative">
       <StatusBar style="dark" />
-      <View className="mt-6 flex-row items-center justify-between px-8">
-        <Text className="pt-1 text-3xl text-[#0B646B] font-bold">
+      <View className="mt-6 flex-row items-center justify-start px-8">
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          className="rounded-md bg-white"
+        >
+          <FontAwesome5 name="chevron-left" size={24} color="#06B2BE" />
+        </TouchableOpacity>
+
+        <Text className="mx-5 pt-1 text-3xl text-[#0B646B] font-bold">
           Let's Plan
         </Text>
       </View>
@@ -338,14 +363,14 @@ export default function TravelPlanDesctiption({ route, navigation }) {
 
         <View className="w-full flex-row items-center justify-center">
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            className="mx-1 w-[40%] bg-gray-400 rounded-lg"
+            onPress={() => handleDelete()}
+            className="mx-1 w-[40%] bg-red-600 rounded-lg"
           >
             {loading ? (
               <ActivityIndicator animating={loading} size={"large"} />
             ) : (
-              <Text className="p-2 font-bold text-base text-center">
-                Go Back
+              <Text className="p-2 font-bold text-white text-base text-center">
+                Delete Trip
               </Text>
             )}
           </TouchableOpacity>

@@ -58,7 +58,6 @@ export default function Wishlist_Tab({ navigation }) {
             },
           });
 
-          console.log(response.data);
           if (response.status === 200) {
             setTravelPlan(response.data?.travelPlans);
           }
@@ -143,7 +142,7 @@ export default function Wishlist_Tab({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          <View className="my-2">
+          <View className="my-2 mb-24">
             {travelPlan && travelPlan.length > 0 ? (
               travelPlan.map((list, index) => (
                 <View className="m-1 p-5 border-1" key={index}>

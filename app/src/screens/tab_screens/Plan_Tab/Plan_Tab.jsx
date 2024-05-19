@@ -72,9 +72,9 @@ export default function Plan_Tab({ route, navigation }) {
         },
         { headers: { token: await AsyncStorage.getItem("token") } }
       );
-      console.log(response.data);
+
       if (response.status === 201) {
-        navigation.navigate("Discover");
+        navigation.navigate("Discover_Tab");
         setLoading(false);
       }
     } catch (err) {

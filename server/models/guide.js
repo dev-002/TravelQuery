@@ -48,6 +48,10 @@ const guideSchema = Schema({
     ],
     default: [],
   },
+  travelPlans: {
+    type: { type: Schema.Types.ObjectId, ref: "travelplans" },
+    default: [],
+  },
 });
 
 guideSchema.pre("save", async function (next) {

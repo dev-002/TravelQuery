@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import URL from "../../api";
@@ -164,7 +165,11 @@ export default function ItemScreen({ route }) {
           {data?.price_level && (
             <View className=" flex-row items-center space-x-2">
               <View className="w-10 h-10 rounded-xl bg-red-100 items-center justify-center shadow-md">
-                <MaterialIcons name="attach-money" size={24} color="black" />
+                <MaterialCommunityIcons
+                  name="currency-inr"
+                  size={24}
+                  color="black"
+                />
               </View>
               <View>
                 <Text className="text-[#515151]">{data?.price_level}</Text>

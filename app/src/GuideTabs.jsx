@@ -7,6 +7,7 @@ import Home_Tab from "./screens/guide_tab_screens/Home_Tab/Home_Tab.jsx";
 import Tour_Tab from "./screens/guide_tab_screens/Tours_Tab/Tours_Tab.jsx";
 import Bookings_Tab from "./screens/guide_tab_screens/Bookings_Tab/Bookings_Tab.jsx";
 import Profile_Tab from "./screens/guide_tab_screens/Profile_Tab/Profile_Tab.jsx";
+import Review_Tab from "./screens/guide_tab_screens/Rreview_Tab/Review_Tab.jsx";
 
 const Tab = createBottomTabNavigator();
 
@@ -52,7 +53,7 @@ export default function Bottom_Tabs() {
 
         <Tab.Screen
           name="Reviews_Tab"
-          component={Profile_Tab}
+          component={Review_Tab}
           options={{
             tabbarlabel: "Reviews",
           }}

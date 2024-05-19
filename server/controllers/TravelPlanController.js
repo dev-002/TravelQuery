@@ -85,6 +85,25 @@ const createPlan = async (req, res, next) => {
       guidesOpted: guidesOptedObj,
     });
 
+    await Promise.all(
+      members.map(async (m) => {
+        const user = await User.findById(m._id);
+        if (user) {
+          user.travelPlans.push(travelplan);
+          await user.save();
+        }
+      })
+    );
+    await Promise.all(
+      guidesOpted.map(async (g) => {
+        const guide = await Guide.findById(g._id);
+        if (guide) {
+          guide?.travelPlans.push(travelplan);
+          await guide.save();
+        }
+      })
+    );
+
     if (travelplan) {
       user.travelPlans.push(travelplan._id);
       await user.save();
@@ -151,11 +170,10 @@ const updatePlan = async (req, res, next) => {
 
 const deletePlan = async (req, res, next) => {
   const data = req.data;
-  const { _id } = req.body;
+  const { _id } = req.headers;
 
   try {
     const user = await User.findOne({ mobile: data.mobile });
-
     const travelplan = await TravelPlan.findByIdAndDelete(_id, { new: true });
 
     if (travelplan) {

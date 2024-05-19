@@ -78,7 +78,6 @@ export default function ExploreScreen({ navigation }) {
           headers: { token: await AsyncStorage.getItem("token") },
         }
       );
-      console.log("Search: ", response.data);
       if (response.status == 200) {
         setPlaces(response.data?.places);
         setInterval(() => setLoading(false), 2000);

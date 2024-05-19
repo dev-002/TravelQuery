@@ -197,14 +197,7 @@ export default function Login({ navigation }) {
   );
 }
 
-const FogetPassword = ({
-  role,
-  setRole,
-  mobile,
-  setMobile,
-  forgetPass,
-  setForgetPass,
-}) => {
+const FogetPassword = ({ role, setRole, mobile, setMobile, setForgetPass }) => {
   const [loading, setLoading] = useState(false);
   const [changePass, setChangePass] = useState(false);
   const [sendOTPCheck, setSendOTPCheck] = useState(false);

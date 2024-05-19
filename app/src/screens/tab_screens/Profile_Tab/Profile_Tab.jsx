@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { FontAwesome } from "@expo/vector-icons";
 import { Avatar } from "../../../../assets/index";
 import { useFocusEffect } from "@react-navigation/native";
+import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
 import URL from "../../../../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -21,8 +23,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function Profile_Tab({ navigation }) {
   // states
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [mobile, setMobile] = useState(NaN);
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [mobile, setMobile] = useState("");
   const [gender, setGender] = useState(NaN);
   const [travelPlan, setTravelPlan] = useState([]);
 
@@ -34,10 +38,10 @@ export default function Profile_Tab({ navigation }) {
 
   function NameSplit(name) {
     const splitName = name?.split(" ");
-    const firstName = splitName?.[0] || "";
-    const lastName = splitName?.[splitName.length - 1] || "";
-    const middleName = splitName?.slice(1, -1).join(" ") || "";
-    return [firstName, middleName, lastName];
+    const fName = splitName?.[0] || "";
+    const lName = splitName?.[splitName.length - 1] || "";
+    const mName = splitName?.slice(1, -1).join(" ") || "";
+    return [fName, mName, lName];
   }
 
   function getGender(gender) {
@@ -64,11 +68,13 @@ export default function Profile_Tab({ navigation }) {
             },
           });
 
-          console.log(response.data);
           if (response.status == 200) {
             setLoading(false);
-            setName(response.data?.user.name);
-            setMobile(response.data?.user.mobile);
+            const res = NameSplit(response?.data?.user?.name);
+            setFirstName(res[0]);
+            setMiddleName(res[1]);
+            setLastName(res[2]);
+            setMobile(response.data?.user.mobile?.toString());
             setGender(response.data?.user.gender);
             setTravelPlan(response.data?.user.travelPlan);
             setLoading(false);
@@ -87,7 +93,6 @@ export default function Profile_Tab({ navigation }) {
             },
           });
 
-          console.log(response.data);
           if (response.status === 200) {
             setTravelPlan(response.data?.travelPlans);
           }
@@ -104,6 +109,30 @@ export default function Profile_Tab({ navigation }) {
   async function handleLogout() {
     await AsyncStorage.multiRemove(["token", "role"]);
     navigation.replace("Login");
+  }
+
+  async function handleUpdate() {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        URL.Profile.updateProfile,
+        {
+          name: `${firstName}${middleName ? `${middleName} ` : " "}${lastName}`,
+          mobile,
+          gender,
+        },
+        { headers: { token: await AsyncStorage.getItem("token") } }
+      );
+      console.log(response.data);
+      if (response.status === 200) {
+        navigation.navigate("Profile_Tab");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log("Error while updating profile", err);
+      Alert.alert("Error while updating profile");
+      setLoading(false);
+    }
   }
 
   return (
@@ -129,7 +158,6 @@ export default function Profile_Tab({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-
       <View className="flex-row items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4">
         <TouchableOpacity
           className="mt-2 w-full rounded-md"
@@ -140,7 +168,6 @@ export default function Profile_Tab({ navigation }) {
           </Text>
         </TouchableOpacity>
       </View>
-
       {/* Profile Container */}
       {loading ? (
         <View className=" flex-1 items-center justify-center">
@@ -151,17 +178,20 @@ export default function Profile_Tab({ navigation }) {
           <View className="w-full px-4 mt-8 flex items-center justify-center flex-wrap">
             <View className="w-full my-2 flex-row items-center justify-evenly">
               <TextInput
-                value={NameSplit(name)[0]}
+                value={firstName}
+                onChangeText={(text) => setFirstName(text)}
                 placeholder="First Name"
                 className="py-2 px-4 text-md border rounded-lg"
               />
               <TextInput
-                value={NameSplit(name)[1]}
+                value={middleName}
+                onChangeText={(text) => setMiddleName(text)}
                 placeholder="Middle Name"
                 className="py-2 px-4 text-md border rounded-lg"
               />
               <TextInput
-                value={NameSplit(name)[2]}
+                value={lastName}
+                onChangeText={(text) => setLastName(text)}
                 placeholder="Last Name"
                 className="py-2 px-4 text-md border rounded-lg"
               />
@@ -170,37 +200,45 @@ export default function Profile_Tab({ navigation }) {
             <View className="w-full my-2 flex-row justify-evenly items-center">
               <Text className="w-1/3 text-xl"> Mobile No :</Text>
               <TextInput
-                value={mobile.toString()}
+                value={mobile}
                 placeholder="Mobile"
                 className="w-2/3 py-2 px-4 border rounded-lg"
                 keyboardType="numeric"
                 onTextChange={(text) => setMobile(text)}
-                maxLength={10}
+                // maxLength={10}
               />
             </View>
 
             <View className="mw-full y-2 flex-row justify-evenly items-center">
               <Text className="w-1/3 text-xl"> Gender :</Text>
-              <TextInput
-                value={getGender(gender)}
-                placeholder="Gender"
-                className="w-2/3 py-2 px-4 border rounded-lg"
-                onTextChange={(text) => {
-                  text = text?.toLowerCase();
-                  switch (text) {
-                    case "male": {
-                      setGender(1);
-                      break;
-                    }
-                    case "female": {
-                      setGender(2);
-                      break;
-                    }
-                    default:
-                      setGender(3);
-                  }
-                }}
+
+              <Dropdown
+                style={styles.dropdown}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                data={[
+                  { label: "Male", value: 1 },
+                  { label: "Female", value: 2 },
+                ]}
+                className="w-2/3 m-1 p-1 py-2 px-4 bg-gray-500 text-black border-b rounded-lg"
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={getGender(gender)}
+                value={gender}
+                onChange={(item) => setGender(item?.value)}
               />
+            </View>
+
+            <View className="w-[80%] py-1 px-4 mx-4 rounded-xl shadow-lg">
+              <TouchableOpacity
+                className="mt-2 w-full rounded-md"
+                onPress={() => handleUpdate()}
+              >
+                <Text className="p-2 bg-yellow-500 text-base text-center rounded-lg">
+                  Update Profile
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <View>
@@ -218,7 +256,7 @@ export default function Profile_Tab({ navigation }) {
               </View>
 
               <View className="my-2 flex-row justify-evenly">
-                <View className="my-2 mb-28 flex-row justify-evenly">
+                <View className="my-2 mb-28">
                   {travelPlan && travelPlan.length > 0 ? (
                     travelPlan.map((list, i) => (
                       <TouchableOpacity
@@ -235,7 +273,7 @@ export default function Profile_Tab({ navigation }) {
                         {list.name && (
                           <View className="w-[80%]">
                             <Text className="text-[#428288] text-[18px] font-bold">
-                              {list.name?.length > 14
+                              {list.name?.length > 25
                                 ? `${list.name.slice(0, 14)}..`
                                 : list.name}
                             </Text>
@@ -270,3 +308,20 @@ export default function Profile_Tab({ navigation }) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  dropdown: {
+    margin: 16,
+    height: 50,
+    borderBottomColor: "gray",
+    borderBottomWidth: 0.5,
+  },
+
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+    color: "white",
+  },
+});

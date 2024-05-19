@@ -19,30 +19,40 @@ const getUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   const data = req.data;
-  const username = req.params.username;
-  const newdata = req.body.update;
+  const newData = req.body;
   try {
+    console.log(req.body);
     let user, updatedUser;
     if (data.role === 2) {
-      user = await User.findOne({ name: username });
+      user = await User.findOne({ mobile: data.mobile });
       if (user) {
-        updatedUser = await User.findByIdAndUpdate(user._id, {
-          $set: { ...newdata },
-        });
+        updatedUser = await User.findByIdAndUpdate(
+          user._id,
+          {
+            $set: newData,
+          },
+          { new: true }
+        );
       } else {
-        user = await Guide.findOne({ name: username });
+        user = await Guide.findOne({ mobile: data.mobile });
         if (user) {
-          updatedUser = await Guide.findByIdAndUpdate(user._id, {
-            $set: { ...newdata },
-          });
+          updatedUser = await Guide.findByIdAndUpdate(
+            user._id,
+            {
+              $set: newData,
+            },
+            { new: true }
+          );
         }
       }
 
-      if (updatedUser?.acknowledgement) {
+      console.log(user);
+      if (updatedUser) {
         return res.status(200).json({ ack: true, updatedUser });
       } else throw new Error("Error while updating User");
     } else return res.status(404).json({ ack: false, msg: "No user exist" });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({ ack: false, msg: err });
   }
 };

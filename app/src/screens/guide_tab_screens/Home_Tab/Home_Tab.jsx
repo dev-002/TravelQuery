@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,31 +10,18 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
 import URL from "../../../../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  Attractions,
-  Avatar,
-  Hotels,
-  NotFound,
-  Restaurants,
-  Add,
-  Nature,
-  Home_Stay,
-  Other,
-} from "../../../../assets/index";
+import { Avatar, NotFound } from "../../../../assets/index";
 
-import MenuContainer from "../../../components/MenuContainer";
-import ItemCarDontainer from "./components/ItemCarDontainer";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function Discover_Tab({ navigation }) {
-  const [type, setType] = useState("");
   const [loading, setLoading] = useState(false);
-  const [places, setPlaces] = useState([]);
+  const [areas, setAreas] = useState([]);
+  const [travelPlans, setTravelPlans] = useState([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -49,21 +31,18 @@ export default function Discover_Tab({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      async function fetchPlaces() {
+      async function fetchGuideArea() {
         try {
           setLoading(true);
-          const token = await AsyncStorage.getItem("token");
-          const response = await axios.post(
-            URL.Place.fetchPlace,
-            { type },
-            {
-              headers: {
-                token,
-              },
-            }
-          );
+
+          const response = await axios.get(URL.Guide.fetchGuideArea, {
+            headers: {
+              token: await AsyncStorage.getItem("token"),
+            },
+          });
+
           if (response.status === 200) {
-            setPlaces(response.data?.places);
+            setAreas(response.data?.areas);
             setInterval(() => setLoading(false), 2000);
           }
         } catch (err) {
@@ -72,12 +51,36 @@ export default function Discover_Tab({ navigation }) {
           setLoading(false);
         }
       }
-      fetchPlaces();
+
+      async function fetchTravels() {
+        try {
+          setLoading(true);
+
+          const response = await axios.get(URL.Guide.fetchTravelPlans, {
+            headers: {
+              token: await AsyncStorage.getItem("token"),
+            },
+          });
+
+          console.log(response.data);
+          if (response.status === 200) {
+            setTravelPlans(response.data?.travelplans);
+            setInterval(() => setLoading(false), 2000);
+          }
+        } catch (err) {
+          console.log("Error while fetching plans", err);
+          Alert.alert("Error fetching plans");
+          setLoading(false);
+        }
+      }
+
+      fetchGuideArea();
+      fetchTravels();
 
       return () => {
         // Add cleanup logic here if needed
       };
-    }, [type])
+    }, [])
   );
 
   return (
@@ -97,22 +100,6 @@ export default function Discover_Tab({ navigation }) {
         </View>
       </View>
 
-      <View className="flex-row items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4">
-        <GooglePlacesAutocomplete
-          GooglePlacesDetailsQuery={{ fields: "geometry" }}
-          placeholder="Search"
-          fetchDetails={true}
-          onPress={(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
-            console.log(details?.geometry?.viewport);
-          }}
-          query={{
-            key: "YOUR_API_KEY",
-            language: "en",
-          }}
-        />
-      </View>
-
       {/* Menu Container */}
       {loading ? (
         <View className=" flex-1 items-center justify-center">
@@ -120,77 +107,6 @@ export default function Discover_Tab({ navigation }) {
         </View>
       ) : (
         <ScrollView>
-          <ScrollView horizontal={true}>
-            <View className="px-4 mt-8 flex-row items-center justify-between">
-              {/* Add Button */}
-              <TouchableOpacity
-                className="items-center justify-center space-y-2"
-                onPress={() => navigation.navigate("AddPlace_Screen")}
-              >
-                <View
-                  className={`w-24 h-24 p-2 shadow-sm rounded-full items-center justify-center`}
-                >
-                  <Image
-                    source={Add}
-                    className="w-full h-full object-contain"
-                  />
-                </View>
-                <Text className="text-[#00BCC9] text-xl font-semibold">
-                  Add
-                </Text>
-              </TouchableOpacity>
-
-              {/* List of Place Type */}
-
-              <MenuContainer
-                Key={"attractions"}
-                title="Attractions"
-                imageSrc={Attractions}
-                type={type}
-                setType={setType}
-              />
-
-              <MenuContainer
-                Key={"hotel"}
-                title="Hotels"
-                imageSrc={Hotels}
-                type={type}
-                setType={setType}
-              />
-              <MenuContainer
-                Key={"restaurant"}
-                title="Restaurants"
-                imageSrc={Restaurants}
-                type={type}
-                setType={setType}
-              />
-
-              <MenuContainer
-                Key={"home_stay"}
-                title="Home Stay"
-                imageSrc={Home_Stay}
-                type={type}
-                setType={setType}
-              />
-
-              <MenuContainer
-                Key={"nature"}
-                title="Nature"
-                imageSrc={Nature}
-                type={type}
-                setType={setType}
-              />
-
-              <MenuContainer
-                Key={"other"}
-                title="Others"
-                imageSrc={Other}
-                type={type}
-                setType={setType}
-              />
-            </View>
-          </ScrollView>
-
           <View>
             <View className="flex-row items-center justify-between px-4 mt-8">
               <Text className="text-[#2C7379] text-[28px] font-bold">
@@ -209,36 +125,48 @@ export default function Discover_Tab({ navigation }) {
             </View>
 
             <View className="px-4 mt-8 flex-row items-center justify-evenly flex-wrap">
-              {places?.length > 0 ? (
-                <>
-                  {places?.map((data, i) => (
-                    <ItemCarDontainer
-                      key={i}
-                      imageSrc={
-                        data.images?.length > 0
-                          ? data.images[0]
-                          : "https://img.freepik.com/free-photo/reflection-lights-mountain-lake-captured-parco-ciani-lugano-switzerland_181624-24209.jpg?t=st=1715741152~exp=1715744752~hmac=75d09c631a9f9afd43382409981c71c0c2068ace223c2f523807ab999a1d1a88&w=1380"
-                        // "https://cdn.pixabay.com/photo/2015/10/30/12/22/eat-1014025_1280.jpg"
-                      }
-                      title={data?.name}
-                      location={data?.address}
-                      data={data}
-                    />
-                  ))}
-                </>
+              {areas?.length > 0 ? (
+                areas?.map((data, i) => (
+                  <View key={i}>
+                    <Text>{data}</Text>
+                  </View>
+                ))
               ) : (
-                <>
-                  <View className="w-full h-[400px] items-center space-y-8 justify-center">
+                <Text className="text-lg text-center"> No area specified</Text>
+              )}
+            </View>
+          </View>
+
+          <View>
+            <View className="flex-row items-center justify-between px-4 mt-8">
+              <Text className="text-[#2C7379] text-[28px] font-bold">
+                Upcoming Travels
+              </Text>
+            </View>
+
+            <View>
+              <View className="px-4 mt-8 flex-wrap">
+                {travelPlans?.length > 0 ? (
+                  travelPlans?.map((data, i) => (
+                    <View key={i} className="w-full">
+                      <Text className="font-bold text-lg">{data?.name}</Text>
+                      <Text className="text-base">{data?.description}</Text>
+                      <Text className="text-base">{data?.totalBudget}</Text>
+                      <Text className="text-base">{data?.totalTripDays}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <View className="mt-5 w-full items-center space-y-8 justify-center">
                     <Image
                       source={NotFound}
-                      className=" w-32 h-32 object-cover"
+                      className=" w-24 h-24 object-cover"
                     />
                     <Text className="text-2xl text-[#428288] font-semibold">
-                      Opps...No Data Found
+                      Opps...Currently No Travel
                     </Text>
                   </View>
-                </>
-              )}
+                )}
+              </View>
             </View>
           </View>
         </ScrollView>

@@ -26,9 +26,9 @@ export default {
   TravelPlan: {
     getAllTravelPlan: baseURL + "/travel-plans",
     getSpecificTravelPlan: baseURL + "/travel-plans", // :id
-    addTravelPlan: baseURL + "/travel-plans", // post
-    updateTravelPlan: baseURL + "/travel-plans", // :id put
-    removeTravelPlan: baseURL + "/travel-plans", // :id delete
+    addTravelPlan: baseURL + "/travel-plans/add", // post
+    updateTravelPlan: baseURL + "/travel-plans/update", // :id put
+    removeTravelPlan: baseURL + "/travel-plans/delete", // :id delete
 
     serachMember: baseURL + "/travel-plans/search/member", // post
     serachPlaces: baseURL + "/travel-plans/search/places", // post
@@ -39,6 +39,10 @@ export default {
     getSpecificTourGuide: baseURL + "/guide", // :id
     updateTourGuide: baseURL + "/guide", // :id put
     removeTourGuide: baseURL + "/guide", // :id delete
+
+    fetchGuideArea: baseURL + "/guide/area",
+    fetchTravelPlans: baseURL + "/guide/travelPlan",
+    fetchReviews: baseURL + "/guide/reviews",
   },
   Profile: {
     getProfile: baseURL + "/profile", // :id
