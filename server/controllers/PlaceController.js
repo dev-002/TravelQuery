@@ -75,4 +75,29 @@ const deletePlace = async (req, res, next) => {
   }
 };
 
-module.exports = { fetchPlace, addPlace, updatePlace, deletePlace };
+const searchPlace = async (req, res, next) => {
+  const { search } = req.body;
+
+  console.log(search);
+  try {
+    const searchRegex = new RegExp(search, "i");
+    let places;
+    if (search) {
+      places = await Place.find({ name: { $regex: searchRegex } });
+    } else {
+      places = await Place.find({});
+    }
+    res.status(200).json({ ack: true, places });
+  } catch (err) {
+    console.log("Error while fetching members: ", err);
+    return res.status(500).json({ ack: false, err });
+  }
+};
+
+module.exports = {
+  fetchPlace,
+  addPlace,
+  updatePlace,
+  deletePlace,
+  searchPlace,
+};

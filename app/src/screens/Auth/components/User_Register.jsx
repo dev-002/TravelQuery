@@ -132,7 +132,7 @@ export default function User_Register({ role, setRole }) {
           <Text className="text-darkGreen font-bold">Privacy Policy</Text>
         </View>
       </View>
-      <View className="my-1 px-4 flex-row justify-center">
+      <View className="my-4 px-4 flex-row justify-center">
         <Btn
           disabled={
             loading ? true : repeatPassword === password && password.length > 0

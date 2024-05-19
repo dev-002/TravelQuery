@@ -1,27 +1,28 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   TextInput,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { FontAwesome } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
-import URL from "../../../../api";
+import URL from "../../../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import PlacesModal from "./components/PlacesModal";
-import MembersModal from "./components/MemberModal";
-import GuidesModal from "./components/GuidesModal";
+import PlacesModal from "./Plan_Tab/components/PlacesModal";
+import MembersModal from "./Plan_Tab/components/MemberModal";
+import GuidesModal from "./Plan_Tab/components/GuidesModal";
 
-export default function Plan_Tab({ route, navigation }) {
+export default function TravelPlanDesctiption({ route, navigation }) {
+  const dataId = route?.params?.id;
+
   // states
   const [loading, setLoading] = useState(false);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   // date
@@ -55,12 +56,13 @@ export default function Plan_Tab({ route, navigation }) {
     }
   }
 
-  async function handleSubmit() {
+  async function updatePlan() {
     try {
       setLoading(true);
-      const response = await axios.post(
-        URL.TravelPlan.addTravelPlan,
+      const response = await axios.put(
+        URL.TravelPlan.updateTravelPlan,
         {
+          _id: dataId,
           name,
           description,
           date,
@@ -73,8 +75,8 @@ export default function Plan_Tab({ route, navigation }) {
         { headers: { token: await AsyncStorage.getItem("token") } }
       );
       console.log(response.data);
-      if (response.status === 201) {
-        navigation.navigate("Discover");
+      if (response.status === 200) {
+        // navigation.navigate("Discover");
         setLoading(false);
       }
     } catch (err) {
@@ -83,6 +85,39 @@ export default function Plan_Tab({ route, navigation }) {
       Alert.alert("Error planning a trip");
     }
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      async function fetchPlan() {
+        try {
+          const response = await axios.post(
+            URL.TravelPlan.getSpecificTravelPlan,
+            { id: dataId },
+            {
+              headers: {
+                token: await AsyncStorage.getItem("token"),
+              },
+            }
+          );
+
+          console.log(response.data);
+          if (response.status === 200) {
+            setName(response.data?.travelPlan?.name);
+            setDescription(response.data?.travelPlan?.description);
+            setDate(response.data?.travelPlan?.date);
+            setTotalBudget(response.data?.travelPlan?.totalBudget);
+            setTotalTripDays(response.data?.travelPlan?.totalTripDays);
+            setGuidesOpted(response.data?.travelPlan?.guidesOpted);
+            setMembers(response.data?.travelPlan?.members);
+            setPalcesVisited(response.data?.travelPlan?.placesVisited);
+          }
+        } catch (err) {
+          console.log("Error while fetching", err);
+        }
+      }
+      fetchPlan();
+    }, [])
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -149,9 +184,9 @@ export default function Plan_Tab({ route, navigation }) {
             </View>
             <Text className="m-auto mx-5 text-center text-base border-b border-dashed">
               Trip Date :{" "}
-              {date
+              {date?.getDate
                 ? `${date?.getDate()}-${date?.getMonth()}-${date?.getFullYear()}`
-                : "select date"}
+                : `${new Date()?.getDate()}-${new Date()?.getMonth()}-${new Date()?.getFullYear()}`}
             </Text>
           </View>
 
@@ -238,6 +273,24 @@ export default function Plan_Tab({ route, navigation }) {
                 placesModal={placesModal}
                 setPlacesModal={setPlacesModal}
               />
+
+              {placesVisited?.length > 0 && (
+                <View className="flex-row items-center">
+                  {placesVisited?.map((place, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => {
+                        let memb = placesVisited.filter((m) => m !== place);
+                        setPalcesVisited(memb);
+                      }}
+                    >
+                      <Text key={i} className="m-1 p-1 bg-blue-300 rounded-lg">
+                        {place?.name?.split(" ")[0]}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </View>
           </View>
 
@@ -283,71 +336,32 @@ export default function Plan_Tab({ route, navigation }) {
           </View>
         </View>
 
-        <View className="w-full">
+        <View className="w-full flex-row items-center justify-center">
           <TouchableOpacity
-            onPress={() => handleSubmit()}
-            className="mx-1 bg-yellow-400 rounded-lg"
+            onPress={() => navigation.goBack()}
+            className="mx-1 w-[40%] bg-gray-400 rounded-lg"
           >
-            <Text className="p-2 font-bold text-base text-center">
-              Plan Trip
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View>
-          <View className="w-full px-2 mt-8 flex-row justify-between">
-            <Text className="text-[#2C7379] text-xl font-bold">
-              Places Added
-            </Text>
-            <View className="flex-row items-center justify-center space-x-2">
-              <FontAwesome name="long-arrow-right" size={40} color="#A0C4C7" />
-            </View>
-          </View>
-
-          <View className="my-2 mb-28 flex-row justify-evenly">
-            {placesVisited?.length > 0 ? (
-              placesVisited?.map((list, i) => (
-                <View className="m-1" key={i}>
-                  <Image
-                    source={{
-                      uri:
-                        list.images?.length > 0
-                          ? list.images[0]
-                          : "https://img.freepik.com/free-photo/reflection-lights-mountain-lake-captured-parco-ciani-lugano-switzerland_181624-24209.jpg?t=st=1715741152~exp=1715744752~hmac=75d09c631a9f9afd43382409981c71c0c2068ace223c2f523807ab999a1d1a88&w=1380",
-                    }}
-                    className="w-full h-28 rounded-md object-cover"
-                  />
-
-                  {list.name ? (
-                    <>
-                      <Text className="text-[#428288] text-[18px] font-bold">
-                        {list.name?.length > 14
-                          ? `${list.name.slice(0, 14)}..`
-                          : list.name}
-                      </Text>
-
-                      <View className="flex-row items-center space-x-1">
-                        <FontAwesome
-                          name="map-marker"
-                          size={20}
-                          color="#8597A2"
-                        />
-                        <Text className="text-[#428288] text-[14px] font-bold">
-                          {list.address?.length > 18
-                            ? `${list.name.slice(0, 18)}..`
-                            : list.address}
-                        </Text>
-                      </View>
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </View>
-              ))
+            {loading ? (
+              <ActivityIndicator animating={loading} size={"large"} />
             ) : (
-              <Text className="text-base">Where to go ?....</Text>
+              <Text className="p-2 font-bold text-base text-center">
+                Go Back
+              </Text>
             )}
-          </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => updatePlan()}
+            className="mx-1 w-[40%] bg-yellow-400 rounded-lg"
+          >
+            {loading ? (
+              <ActivityIndicator animating={loading} size={"large"} />
+            ) : (
+              <Text className="p-2 font-bold text-base text-center">
+                Update Trip
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -79,7 +79,24 @@ export default function Profile_Tab({ navigation }) {
           console.log("Error fetching profile", err);
         }
       }
+      async function fetchPlans() {
+        try {
+          const response = await axios.get(URL.TravelPlan.getAllTravelPlan, {
+            headers: {
+              token: await AsyncStorage.getItem("token"),
+            },
+          });
 
+          console.log(response.data);
+          if (response.status === 200) {
+            setTravelPlan(response.data?.travelPlans);
+          }
+        } catch (err) {
+          console.log("Error while fetching", err);
+        }
+      }
+
+      fetchPlans();
       dataFetch();
     }, [])
   );
@@ -201,13 +218,50 @@ export default function Profile_Tab({ navigation }) {
               </View>
 
               <View className="my-2 flex-row justify-evenly">
-                {travelPlan && travelPlan.length > 0 ? (
-                  travelPlan.map((plan, index) => {
-                    return <Text>Plan {index + 1}</Text>;
-                  })
-                ) : (
-                  <Text>No Travel Plans Yet....</Text>
-                )}
+                <View className="my-2 mb-28 flex-row justify-evenly">
+                  {travelPlan && travelPlan.length > 0 ? (
+                    travelPlan.map((list, i) => (
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("PlanDesctiption", {
+                            id: list._id,
+                          })
+                        }
+                        className="m-1 p-2 flex-row items-center justify-between bg-[#ded] rounded-lg"
+                        key={i}
+                      >
+                        <Text className="w-[20%] text-base">{i + 1}</Text>
+
+                        {list.name && (
+                          <View className="w-[80%]">
+                            <Text className="text-[#428288] text-[18px] font-bold">
+                              {list.name?.length > 14
+                                ? `${list.name.slice(0, 14)}..`
+                                : list.name}
+                            </Text>
+
+                            <View className="flex-row items-center space-x-1">
+                              <FontAwesome
+                                name="map-marker"
+                                size={20}
+                                color="#8597A2"
+                              />
+                              <Text className="text-[#428288] text-[14px] font-bold">
+                                {list?.placesVisited?.map((p) =>
+                                  p?.name?.length > 18
+                                    ? `${p?.name.slice(0, 18)}..`
+                                    : p?.name
+                                )}
+                              </Text>
+                            </View>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    ))
+                  ) : (
+                    <Text className="text-base">No Travel Plans Yet....</Text>
+                  )}
+                </View>
               </View>
             </View>
           </View>

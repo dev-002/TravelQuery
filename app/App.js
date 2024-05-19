@@ -12,6 +12,8 @@ import AddPlace from "./src/screens/tab_screens/Discover_Tab/AddPlaceScreen.jsx"
 import ItemScreen from "./src/screens/ItemScreen.jsx";
 import GuideScreen from "./src/screens/GuideScreen.jsx";
 import Guide_Tabs from "./src/GuideTabs.jsx";
+import TravelPlanDesctiption from "./src/screens/tab_screens/TravelPlanDesctiption.jsx";
+import ExploreScreen from "./src/screens/ExploreScreen.jsx";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +35,11 @@ export default function App() {
 
           <Stack.Screen name="ItemScreen" component={ItemScreen} />
           <Stack.Screen name="GuideScreen" component={GuideScreen} />
+          <Stack.Screen
+            name="PlanDesctiption"
+            component={TravelPlanDesctiption}
+          />
+          <Stack.Screen name="ExploreScreen" component={ExploreScreen} />
 
           {/* Guide Screens */}
           <Stack.Screen name="Guide_Discover" component={Guide_Tabs} />

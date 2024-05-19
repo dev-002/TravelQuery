@@ -15,6 +15,7 @@ export default {
     addPlace: baseURL + "/places/add", // post
     updatePlace: baseURL + "/places", // :id put
     removePlace: baseURL + "/places", // :id delete
+    searchPlace: baseURL + "/places/search", // post
   },
   User: {
     getAllUsers: baseURL + "/users",
@@ -28,6 +29,10 @@ export default {
     addTravelPlan: baseURL + "/travel-plans", // post
     updateTravelPlan: baseURL + "/travel-plans", // :id put
     removeTravelPlan: baseURL + "/travel-plans", // :id delete
+
+    serachMember: baseURL + "/travel-plans/search/member", // post
+    serachPlaces: baseURL + "/travel-plans/search/places", // post
+    serachGuide: baseURL + "/travel-plans/search/guide", // post
   },
   Guide: {
     getAllTourGuide: baseURL + "/guide",

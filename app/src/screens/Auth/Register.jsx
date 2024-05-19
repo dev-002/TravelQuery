@@ -15,18 +15,26 @@ export default function Register({ navigation }) {
     <Background>
       <ScrollView class="w-full flex-1">
         <View className="flex-1 w-full items-center">
-          <TouchableOpacity
-            onPress={() => {
-              if (role === 2) setRole(3);
-              else if (role === 3) setRole(2);
-              setIsGuideLogin(!isGuideLogin);
-            }}
-          >
-            <Text className="my-8 font-bold text-4xl text-white">
+          <View className="flex-row items-center justify-center">
+            <Text className="w-[60%] my-8 font-bold text-4xl text-white">
               {isGuideLogin ? "Guide Register" : "User Register"}
             </Text>
-          </TouchableOpacity>
 
+            <TouchableOpacity
+              onPress={() => {
+                if (role === 2) setRole(3);
+                else if (role === 3) setRole(2);
+                setIsGuideLogin(!isGuideLogin);
+              }}
+              className="w-[30%] mx-auto my-4  rounded-lg"
+            >
+              <Text className="p-2 border-2 border-darkGreen bg-black/50 text-white text-center rounded-xl">
+                Switch
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Form */}
           <View className="mx-auto pt-6 w-full h-full bg-white items-center rounded-tl-[100] rounded-tr-[100]">
             <Text className="text-darkGreen font-bold text-xl">
               Create a new account

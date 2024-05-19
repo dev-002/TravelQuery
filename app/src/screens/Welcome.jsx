@@ -31,9 +31,11 @@ export default function Welcome({ navigation }) {
         </Text>
 
         <Text className="text-[#3C6072] text-base">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi
-          quisquam ut adipisci ad, voluptatem obcaecati amet tenetur odio quia
-          facere quod saepe!
+          Discover your adventure with detailed information, stunning images,
+          and amazing places.
+        </Text>
+        <Text className="text-base">
+          Embark on your next adventure with confidence, with TravelQuery!
         </Text>
       </View>
 

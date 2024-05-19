@@ -26,6 +26,7 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgetPass, setForgetPass] = useState(false);
+  const [loggedInLoading, setLoggedInLoading] = useState(true);
 
   async function handleLogin() {
     try {
@@ -35,7 +36,6 @@ export default function Login({ navigation }) {
         mobile: mobile.trim(),
         password: password.trim(),
       });
-      console.log(response.data);
       if (response.status === 200) {
         setLoading(false);
         await AsyncStorage.setItem(
@@ -64,7 +64,7 @@ export default function Login({ navigation }) {
             if (role == 2) {
               navigation.navigate("Discover");
             } else navigation.navigate("Guide_Discover");
-          }
+          } else setLoggedInLoading(false);
         } catch (err) {
           console.log(err);
         }
@@ -78,7 +78,9 @@ export default function Login({ navigation }) {
     <Background>
       <View className="w-full items-center">
         <Text className="text-white font-bold text-4xl my-8">Login</Text>
-        <View className="w-full h-full mx-auto pt-10 bg-white rounded-tl-[100] rounded-tr-[100]">
+        <View
+          className={`w-full h-[100%] mx-auto pt-10 bg-white rounded-tl-[100] rounded-tr-[100] rounded-br-[100] rounded-bl-[100]`}
+        >
           <View className="mx-auto">
             <Text className="text-darkGreen font-bold text-2xl">
               Welcome Back
@@ -88,7 +90,13 @@ export default function Login({ navigation }) {
             </Text>
           </View>
 
-          {forgetPass ? (
+          {loggedInLoading ? (
+            <ActivityIndicator
+              size={"large"}
+              className="m-auto"
+              animating={loggedInLoading}
+            />
+          ) : forgetPass ? (
             <FogetPassword
               role={role}
               setRole={setRole}
@@ -99,10 +107,24 @@ export default function Login({ navigation }) {
             />
           ) : (
             <>
-              {" "}
-              <Text className="mx-auto w-[40%] text-xl text-center border-b-2 border-b-darkGreen">
-                {isGuideLogin ? "Guide Login" : "User Login"}
-              </Text>
+              <View className="flex-row items-center justify-center">
+                <Text className="mx-auto w-[60%] text-xl text-center border-b-2 border-b-darkGreen">
+                  {isGuideLogin ? "Guide Login" : "User Login"}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    if (role === 2) setRole(3);
+                    else if (role === 3) setRole(2);
+                    setIsGuideLogin(!isGuideLogin);
+                  }}
+                  className="w-[30%] mx-auto my-4 border-2 border-darkGreen bg-darkGreen/80 rounded-lg"
+                >
+                  <Text className="p-2 text-white text-center">Switch</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Form */}
               <View className="mx-auto my-2 w-[80%] rounded-full">
                 <Text className="text-lg text-black/50">Mobile Number</Text>
                 <View className="flex-row justify-center items-center">
@@ -156,20 +178,7 @@ export default function Login({ navigation }) {
                   handleLogin();
                 }}
               />
-              <TouchableOpacity
-                onPress={() => {
-                  if (role === 2) setRole(3);
-                  else if (role === 3) setRole(2);
-                  setIsGuideLogin(!isGuideLogin);
-                }}
-                className="w-[50%] mx-auto my-4 bg-darkGreen rounded-lg"
-              >
-                <Text className="p-2 text-white text-center">
-                  {isGuideLogin
-                    ? "Switch to User Login"
-                    : "Switch to Guide Login"}
-                </Text>
-              </TouchableOpacity>
+
               <View className="flex-row justify-center">
                 <Text className="font-bold text-lg">
                   Don't have an account ?{" "}
@@ -250,19 +259,24 @@ const FogetPassword = ({
 
   return (
     <View className="my-2 px-4 items-center">
-      <View className="flex-row items-center justify-between">
+      <View className="w-full flex-row items-center justify-between">
         <TouchableOpacity
-          className="w-[40%]"
+          className="w-[40%] mx-auto my-4 border-2 border-darkGreen bg-darkGreen/80 rounded-lg"
           onPress={() => setForgetPass(false)}
         >
-          <Text> Back to login</Text>
+          <Text className="py-2 px-1 text-white text-center">
+            Back to login
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          className="w-[40%]"
           onPress={() => setRole(role == 2 ? 3 : 2)}
+          className="w-[30%] mx-auto my-4 border-2 border-darkGreen bg-darkGreen/80 rounded-lg"
         >
-          <Text> {role == 2 ? "Switch to guide" : "Switch to user"}</Text>
+          <Text className="p-2 text-white text-center">
+            <Text className="px-2 mx-2"> {role == 2 ? "User" : "Guide"}: </Text>
+            Switch
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -286,14 +300,15 @@ const FogetPassword = ({
           />
         </View>
 
-        <TouchableOpacity onPress={() => handleSendOTP()}>
-          <Text className="my-2 p-1 text-cetner bg-blue-400 text-black">
-            Send OTP
-          </Text>
+        <TouchableOpacity
+          onPress={() => handleSendOTP()}
+          className="my-2 bg-blue-600 rounded-lg"
+        >
+          <Text className="p-1 text-center text-white">Send OTP</Text>
         </TouchableOpacity>
       </View>
 
-      {sendOTPCheck ? (
+      {!sendOTPCheck ? (
         <ActivityIndicator size={"large"} animating={loading} />
       ) : (
         <OtpInput
@@ -304,26 +319,21 @@ const FogetPassword = ({
           textInputProps={{
             accessibilityLabel: "One-Time Password",
           }}
-          // theme={{
-          //   containerStyle: styles.container,
-          //   pinCodeContainerStyle: styles.pinCodeContainer,
-          //   pinCodeTextStyle: styles.pinCodeText,
-          //   focusStickStyle: styles.focusStick,
-          //   focusedPinCodeContainerStyle: styles.activePinCodeContainer,
-          // }}
         />
       )}
 
-      {changePass && loading ? (
+      {!changePass ? (
         <ActivityIndicator animating={loading} size={"large"} />
       ) : (
-        <View>
+        <View className="my-3 w-full">
           <TextInput
             value={newPass}
+            className="my-2 mx-auto w-[80%] text-center text-base border-b"
             onChangeText={(text) => setNewPass(text)}
             placeholder="New Password"
           />
           <TextInput
+            className="my-2 mx-auto w-[80%] text-center text-base border-b"
             onChangeText={(text) =>
               text == newPass ? setCnfPass(true) : setCnfPass(false)
             }
@@ -331,15 +341,13 @@ const FogetPassword = ({
           />
 
           <TouchableOpacity
-            className=""
             disabled={!cnfPass}
             onPress={() => changePassword()}
+            className={`my-2 ${
+              cnfPass ? "bg-blue-600" : "bg-gray-400"
+            } rounded-lg`}
           >
-            <Text
-              className={`my-2 p-1 text-cetner ${
-                cnfPass ? "bg-gray-400 text-white" : "bg-blue-400 text-black"
-              }`}
-            >
+            <Text className={`my-2 p-1 text-center ${cnfPass && "text-white"}`}>
               Change password
             </Text>
           </TouchableOpacity>
@@ -348,7 +356,3 @@ const FogetPassword = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {},
-});

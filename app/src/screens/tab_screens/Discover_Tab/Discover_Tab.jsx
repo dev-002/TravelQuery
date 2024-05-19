@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+// import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
 import URL from "../../../../api";
@@ -95,22 +90,6 @@ export default function Discover_Tab({ navigation }) {
             className="w-full h-full rounded-md object-cover"
           />
         </View>
-      </View>
-
-      <View className="flex-row items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4">
-        <GooglePlacesAutocomplete
-          GooglePlacesDetailsQuery={{ fields: "geometry" }}
-          placeholder="Search"
-          fetchDetails={true}
-          onPress={(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
-            console.log(details?.geometry?.viewport);
-          }}
-          query={{
-            key: "YOUR_API_KEY",
-            language: "en",
-          }}
-        />
       </View>
 
       {/* Menu Container */}
@@ -196,7 +175,11 @@ export default function Discover_Tab({ navigation }) {
               <Text className="text-[#2C7379] text-[28px] font-bold">
                 Top Tips
               </Text>
-              <TouchableOpacity className="flex-row items-center justify-center space-x-2">
+
+              <TouchableOpacity
+                className="flex-row items-center justify-center space-x-2"
+                onPress={() => navigation.navigate("ExploreScreen")}
+              >
                 <Text className="text-[#A0C4C7] text-[20px] font-bold">
                   Explore
                 </Text>

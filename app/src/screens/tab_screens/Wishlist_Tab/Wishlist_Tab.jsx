@@ -50,6 +50,24 @@ export default function Wishlist_Tab({ navigation }) {
         }
       }
 
+      async function fetchPlans() {
+        try {
+          const response = await axios.get(URL.TravelPlan.getAllTravelPlan, {
+            headers: {
+              token: await AsyncStorage.getItem("token"),
+            },
+          });
+
+          console.log(response.data);
+          if (response.status === 200) {
+            setTravelPlan(response.data?.travelPlans);
+          }
+        } catch (err) {
+          console.log("Error while fetching", err);
+        }
+      }
+
+      fetchPlans();
       dataFetch();
     }, [])
   );
@@ -119,19 +137,66 @@ export default function Wishlist_Tab({ navigation }) {
 
         <View>
           <View className="w-full px-2 mt-8 flex-row justify-between">
-            <Text className="text-[#2C7379] text-xl font-bold">
-              Wishlist Travels
-            </Text>
+            <Text className="text-[#2C7379] text-xl font-bold">Travels</Text>
             <TouchableOpacity className="flex-row items-center justify-center space-x-2">
               <FontAwesome name="long-arrow-right" size={40} color="#A0C4C7" />
             </TouchableOpacity>
           </View>
 
-          <View className="my-2 flex-row justify-evenly">
+          <View className="my-2">
             {travelPlan && travelPlan.length > 0 ? (
-              travelPlan.map((plan, index) => {
-                return <Text>Plan {index + 1}</Text>;
-              })
+              travelPlan.map((list, index) => (
+                <View className="m-1 p-5 border-1" key={index}>
+                  <Image
+                    source={{
+                      uri:
+                        list.images?.length > 0
+                          ? list.images[0]
+                          : "https://img.freepik.com/free-photo/reflection-lights-mountain-lake-captured-parco-ciani-lugano-switzerland_181624-24209.jpg?t=st=1715741152~exp=1715744752~hmac=75d09c631a9f9afd43382409981c71c0c2068ace223c2f523807ab999a1d1a88&w=1380",
+                    }}
+                    className="w-full h-24 rounded-md object-cover"
+                  />
+                  <View className="flex-row items-center justify-between">
+                    {list.name ? (
+                      <View>
+                        <Text className="text-[#428288] text-lg font-bold">
+                          {list.name?.length > 14
+                            ? `${list.name.slice(0, 14)}..`
+                            : list.name}
+                        </Text>
+
+                        <View className="flex-row items-center space-x-1">
+                          <FontAwesome
+                            name="map-marker"
+                            size={20}
+                            color="#8597A2"
+                          />
+                          <Text className="text-[#428288] text-base font-bold">
+                            {list?.placesVisited?.map((p) =>
+                              p?.name?.length > 18
+                                ? `${p?.name.slice(0, 18)}..`
+                                : p?.name
+                            )}
+                          </Text>
+                        </View>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+
+                    <View>
+                      <Text className="text-[#8597A2]">
+                        {" "}
+                        Total Budget: {list.totalBudget}
+                      </Text>
+                      <Text className="text-[#8597A2]">
+                        {" "}
+                        Trip Days: {list.totalTripDays}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))
             ) : (
               <Text>No Travel Plans Yet....</Text>
             )}
