@@ -38,7 +38,6 @@ export default function Review_Tab({ navigation }) {
             },
           });
 
-          console.log(response.data);
           if (response.status == 200) {
             setLoading(false);
             setReviews(response.data?.reviews);
@@ -73,22 +72,37 @@ export default function Review_Tab({ navigation }) {
         </View>
       ) : (
         <ScrollView>
-          <View className="w-full px-4 mt-8 flex items-center justify-center flex-wrap">
+          <View className="w-full px-4 mt-8 flex justify-center flex-wrap">
             <View className="w-full my-2 flex-row justify-evenly items-center">
               <Text className="text-xl font-bold text-blue-500">
-                {" "}
-                Overall Rating:{" "}
+                Overall Rating:
               </Text>
               <Text className="text-base text-2xl">{rating}</Text>
             </View>
 
-            <View className="flex items-center">
-              <Text className="text-2xl font-bold text-[#0B646B]">Reviews</Text>
-              <View className="my-2 flex items-center">
+            <View className="flex">
+              <Text className="text-2xl text-center font-bold text-[#0B646B]">
+                Reviews
+              </Text>
+              <View className="my-2 flex justify-start border rounded-xl">
                 {reviews && reviews.length > 0 ? (
-                  reviews.map((plan, index) => {
-                    return <Text>Plan {index + 1}</Text>;
-                  })
+                  reviews.map((plan, index) => (
+                    <View
+                      key={index}
+                      className="my-2 py-1 px-2 flex-row items-start"
+                    >
+                      <Text className="mx-4 text-base align-start">
+                        {index + 1}
+                        {" )"}
+                      </Text>
+                      <View>
+                        <Text className="text-lg">
+                          Rating: {plan.rating?.toString()}
+                        </Text>
+                        <Text className="text-base py-2">{plan.comment}</Text>
+                      </View>
+                    </View>
+                  ))
                 ) : (
                   <Text className="text-xl font-bold">
                     No Reviews Yet.... 🤔

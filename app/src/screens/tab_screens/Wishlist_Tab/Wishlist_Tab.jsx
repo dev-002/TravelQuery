@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
 import URL from "../../../../api";
@@ -82,8 +82,7 @@ export default function Wishlist_Tab({ navigation }) {
       <ScrollView>
         {loading ? (
           <ActivityIndicator size={"large"} animating={loading} />
-        ) : (
-          wishlist.length > 0 &&
+        ) : wishlist.length > 0 ? (
           wishlist.map((list, i) => (
             <View
               key={i}
@@ -132,6 +131,11 @@ export default function Wishlist_Tab({ navigation }) {
               </TouchableOpacity>
             </View>
           ))
+        ) : (
+          <Text className="mx-auto w-2/3 text-lg text-center my-2 pb-3 border-b border-dashed">
+            Empty wishlist{" "}
+            <MaterialCommunityIcons name="bucket-outline" size={20} />
+          </Text>
         )}
 
         <View>

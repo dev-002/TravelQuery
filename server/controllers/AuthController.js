@@ -2,7 +2,6 @@ const User = require("../models/user");
 const Guide = require("../models/guide");
 const bcrypt = require("bcrypt");
 const CreateToken = require("../utility/CreateToken");
-const { AwsInstance } = require("twilio/lib/rest/accounts/v1/credential/aws");
 
 const login = async (req, res, next) => {
   const { role, password, mobile } = req.body;
@@ -60,7 +59,6 @@ const register = async (req, res, next) => {
           mobile: req.body.mobile,
           role,
         });
-        console.log(token);
         result.password = null;
         return res.status(201).json({ ack: true, result, token });
       } else throw new Error("auth register error");
@@ -71,7 +69,6 @@ const register = async (req, res, next) => {
   }
 };
 
-//
 let Temp_otp;
 const sendOTP = async (req, res, next) => {
   const { mobile } = req.body;

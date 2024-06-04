@@ -2,7 +2,7 @@ require("dotenv").config();
 const { connect } = require("mongoose");
 const app = require("./app");
 
-connect(process.env.MONGO_URI, {})
+connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .then((conn) => {
     console.log("Connected to Database:", conn.connection.host);
 

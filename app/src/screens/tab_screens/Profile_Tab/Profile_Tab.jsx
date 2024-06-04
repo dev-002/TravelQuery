@@ -123,7 +123,6 @@ export default function Profile_Tab({ navigation }) {
         },
         { headers: { token: await AsyncStorage.getItem("token") } }
       );
-      console.log(response.data);
       if (response.status === 200) {
         navigation.navigate("Profile_Tab");
         setLoading(false);
@@ -143,19 +142,11 @@ export default function Profile_Tab({ navigation }) {
           <Text className="text-4xl text-[#0B646B] font-bold">Profile</Text>
         </View>
 
-        <View className="mt-6 w-[50%] h-24 bg-gray-400 flex justify-center rounded-md items-center justify-center shadow-lg">
+        <View className="mt-6 w-[50%] h-32 flex justify-center rounded-md items-center justify-center shadow-lg">
           <Image
             source={Avatar}
             className="w-full h-full rounded-md object-cover"
           />
-          <TouchableOpacity
-            className="w-full rounded-md"
-            onPress={() => console.log("avatar updated")}
-          >
-            <Text className="p-2 bg-blue-500 text-white text-center rounded-b-lg">
-              Update Avatar
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
       <View className="flex-row items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4">

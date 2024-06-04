@@ -84,7 +84,7 @@ export default function Discover_Tab({ navigation }) {
           <Text className="text-[#527283] text-[36px]">the beauty today</Text>
         </View>
 
-        <View className="w-12 h-12 bg-gray-400 rounded-md items-center justify-center shadow-lg">
+        <View className="w-12 h-12 rounded-md items-center justify-center shadow-lg">
           <Image
             source={Avatar}
             className="w-full h-full rounded-md object-cover"

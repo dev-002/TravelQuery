@@ -7,13 +7,16 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { FontAwesome, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from "axios";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import URL from "../../api";
+import { TextInput } from "react-native-paper";
 
 export default function ItemScreen({ route }) {
   const navigation = useNavigation();
@@ -240,8 +243,113 @@ export default function ItemScreen({ route }) {
               </Text>
             </TouchableOpacity>
           </View>
+
+          <Reviews id={data?._id} rating={data?.rating} />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const Reviews = ({ rating, id }) => {
+  const [comment, setComment] = useState("");
+  const [newRating, setNewRating] = useState(0);
+  const [previousReview, setPreviousReview] = useState([]);
+
+  async function handlePostReview() {
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        URL.Place.addReview,
+        { comment, rating: newRating, _id: id },
+        { headers: { token: await AsyncStorage.getItem("token") } }
+      );
+    } catch (err) {
+      setLoading(false);
+      console.log("Error while posting review", err);
+      Alert.alert("Error while posting review");
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      async function fetchReview() {
+        try {
+          setLoading(true);
+          const response = await axios.get(URL.Place.fetchReview, {
+            headers: { token: await AsyncStorage.getItem("token"), id: _id },
+          });
+          if (response.status == 200) {
+            setPreviousReview(response.data?.reviews);
+            setLoading(false);
+          }
+        } catch (err) {
+          setLoading(false);
+          console.log("Error while posting review", err);
+          Alert.alert("Error while posting review");
+        }
+      }
+    }, [])
+  );
+
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const fullStar = i <= rating;
+      const halfStar = i - 0.5 <= rating && i > rating;
+      stars.push(
+        <TouchableOpacity key={i} onPress={() => setNewRating(i)}>
+          <FontAwesome
+            name={fullStar ? "star" : halfStar ? "star-half-o" : "star-o"}
+            size={32}
+            color={fullStar || halfStar ? "#FFD700" : "#C0C0C0"}
+          />
+        </TouchableOpacity>
+      );
+    }
+    return stars;
+  };
+
+  return (
+    <View classNameName="">
+      {/* Previous Reviews */}
+      <View>
+        {previousReview?.length > 0 &&
+          previousReview?.map((r, i) => (
+            <View className="my-1 px-2 border bg-gray-200 rounded-lg">
+              <Text className="font-bold text-[#06B2BE] text-lg">
+                {r?.user?.name}
+              </Text>
+              <Text className="font-bold text-yellow-300 text-base">
+                {r?.rating}
+              </Text>
+              <Text className="font-bold text-gray-500 text-base">
+                {r?.comment}
+              </Text>
+            </View>
+          ))}
+      </View>
+
+      {/* Post Review */}
+      {/* Review textbox */}
+      <View className="my-2 px-2 border rounded-t-lg">
+        <TextInput
+          placeholder="Comment"
+          value={comment}
+          onChangeText={(text) => setComment(text)}
+          multiline
+          className="w-full h-12"
+        />
+        <View className="flex-row">{renderStars()}</View>
+        {/* Post Button */}
+        <View className="p-3 rounded-lg bg-[#06B2BE] items-center justify-center">
+          <TouchableOpacity onPress={() => handlePostReview()}>
+            <Text className="text-2xl font-semibold uppercase tracking-wider text-gray-100">
+              Post
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};

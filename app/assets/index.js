@@ -10,3 +10,5 @@ export { default as Home_Stay } from "./Home_Stay.png";
 export { default as Nature } from "./Nature.png";
 export { default as Other } from "./Other.png";
 export { default as GuideAvatar } from "./Guide.jpg";
+export { default as App_Logo } from "./App_Logo.png";
+export { default as transition_GIF } from "./plane.gif";

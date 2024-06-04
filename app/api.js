@@ -1,4 +1,3 @@
-// const baseURL = process.env.BASEURL + "/api/v1";
 const baseURL = "http://192.168.1.35:5000/api/v1";
 
 export default {
@@ -16,6 +15,9 @@ export default {
     updatePlace: baseURL + "/places", // :id put
     removePlace: baseURL + "/places", // :id delete
     searchPlace: baseURL + "/places/search", // post
+
+    addReview: baseURL + "/places/review/add", // post
+    fetchReview: baseURL + "/places/review", // get :id
   },
   User: {
     getAllUsers: baseURL + "/users",
@@ -36,13 +38,21 @@ export default {
   },
   Guide: {
     getAllTourGuide: baseURL + "/guide",
-    getSpecificTourGuide: baseURL + "/guide", // :id
+    getSpecificTourGuide: baseURL + "/guide", // :id post
     updateTourGuide: baseURL + "/guide", // :id put
     removeTourGuide: baseURL + "/guide", // :id delete
 
     fetchGuideArea: baseURL + "/guide/area",
     fetchTravelPlans: baseURL + "/guide/travelPlan",
     fetchReviews: baseURL + "/guide/reviews",
+
+    fetchGuidesReview: baseURL + "/guide/reviews/guide", //post
+    postReview: baseURL + "/guide/reviews", // post
+
+    searchGuide: baseURL + "/guide/search", // post
+
+    // Guide Screens
+    quoteGen: baseURL + "/guide/screen/quote", // get
   },
   Profile: {
     getProfile: baseURL + "/profile", // :id

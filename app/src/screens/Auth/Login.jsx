@@ -152,7 +152,7 @@ export default function Login({ navigation }) {
                   value={password}
                   onChangeText={(text) => setPassword(text)}
                   secureTextEntry={true}
-                  className="mx-auto my-4 w-[80%] border-b text-lg bg-[rgb(220,220, 220)] text-darkGreen rounded-full"
+                  className="mx-auto my-4 w-[80%] px-4 border-b text-lg bg-[rgb(220,220, 220)] text-darkGreen rounded-full"
                 />
               </KeyboardAvoidingView>
               <TouchableOpacity

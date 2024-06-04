@@ -216,7 +216,6 @@ export default function AddModal({ navigation }) {
 
           <TouchableOpacity
             onPress={() => {
-              console.log("locate");
               setGeoLocationModal(!geoLocationModal);
             }}
             className="w-2/3"
@@ -316,7 +315,7 @@ export default function AddModal({ navigation }) {
 
         {/* Images */}
         <View className="my-1 px-2 flex-row justify-between items-center">
-          <Text className="w-1/3 text-white text-base font-bold">
+          <Text className="w-1/3 text-gray-400 text-base font-bold">
             Upload Images:
           </Text>
           <TouchableOpacity

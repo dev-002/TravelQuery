@@ -27,9 +27,10 @@ export default function TravelPlanDesctiption({ route, navigation }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   // date
-  const [date, setDate] = useState(new Date());
-  const [dateModal, setDateModal] = useState(false);
-  const [dateText, setDateText] = useState("");
+  const [beginDate, setBeginDate] = useState(new Date());
+  const [beginDateText, setBeginDateText] = useState("");
+  const [endDate, setEndDate] = useState(new Date());
+  const [endDateText, setEndDateText] = useState("");
 
   const [totalBudget, setTotalBudget] = useState(null);
   const [totalTripDays, setTotalTripDays] = useState(null);
@@ -43,17 +44,25 @@ export default function TravelPlanDesctiption({ route, navigation }) {
   const [guidesOpted, setGuidesOpted] = useState([]);
   const [guidesModal, setGuidesModal] = useState(false);
 
-  function handleDateChange() {
-    const [year, month, day] = dateText.split("/").map(Number);
+  function handleBeginDateChange() {
+    const [year, month, day] = beginDateText.split("/").map(Number);
 
     if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-      const date = new Date(Date.UTC(year, month, day));
-      // Adjust for IST (UTC+5:30)
-      // date.setHours(date.getHours() + 5);
-      // date.setMinutes(date.getMinutes() + 30);
-      setDate(date);
+      const date = new Date(Date.UTC(year, month + 1, day));
+      setBeginDate(date);
     } else {
-      setDate(null);
+      setBeginDate(null);
+    }
+  }
+
+  function handleEndDateChange() {
+    const [year, month, day] = endDateText.split("/").map(Number);
+
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      const date = new Date(Date.UTC(year, month + 1, day));
+      setEndDate(date);
+    } else {
+      setEndDate(null);
     }
   }
 
@@ -66,7 +75,7 @@ export default function TravelPlanDesctiption({ route, navigation }) {
           _id: dataId,
           name,
           description,
-          date,
+          date: { start: beginDate, end: endDate },
           members,
           totalBudget,
           placesVisited,
@@ -75,9 +84,8 @@ export default function TravelPlanDesctiption({ route, navigation }) {
         },
         { headers: { token: await AsyncStorage.getItem("token") } }
       );
-      console.log(response.data);
       if (response.status === 200) {
-        // navigation.navigate("Discover");
+        navigation.navigate("Discover_Tab");
         setLoading(false);
       }
     } catch (err) {
@@ -118,11 +126,11 @@ export default function TravelPlanDesctiption({ route, navigation }) {
             }
           );
 
-          console.log(response.data);
           if (response.status === 200) {
             setName(response.data?.travelPlan?.name);
             setDescription(response.data?.travelPlan?.description);
-            setDate(response.data?.travelPlan?.date);
+            setBeginDate(response.data?.travelPlan?.date?.start);
+            setEndDate(response.data?.travelPlan?.date?.end);
             setTotalBudget(response.data?.travelPlan?.totalBudget);
             setTotalTripDays(response.data?.travelPlan?.totalTripDays);
             setGuidesOpted(response.data?.travelPlan?.guidesOpted);
@@ -184,21 +192,22 @@ export default function TravelPlanDesctiption({ route, navigation }) {
 
           {/* Date */}
           <View className="my-3 px-2">
+            {/* begin date */}
             <View className="flex-row items-center justify-center">
-              <Text className="w-[30%] text-base">Date:</Text>
+              <Text className="w-[30%] text-base">Beign Date:</Text>
 
               <View className="w-[60%] flex-row items-center justify-between">
                 <TextInput
                   placeholder="enter date (yyyy/mm/dd)"
-                  value={dateText}
+                  value={beginDateText}
                   className="w-[70%] border-b border-dotted text-base text-center"
-                  onChangeText={(text) => setDateText(text)}
+                  onChangeText={(text) => setBeginDateText(text)}
                 />
 
                 <TouchableOpacity
                   className="w-[40%] m-1 p-2"
                   onPress={() => {
-                    handleDateChange();
+                    handleBeginDateChange();
                   }}
                 >
                   <Text className="py-1 px-2 text-center text-white bg-black/70 rounded-2xl">
@@ -207,10 +216,40 @@ export default function TravelPlanDesctiption({ route, navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
+
+            {/* end date */}
+            <View className="flex-row items-center justify-center">
+              <Text className="w-[30%] text-base">End Date:</Text>
+
+              <View className="w-[60%] flex-row items-center justify-between">
+                <TextInput
+                  placeholder="enter date (yyyy/mm/dd)"
+                  value={endDateText}
+                  className="w-[70%] border-b border-dotted text-base text-center"
+                  onChangeText={(text) => setEndDateText(text)}
+                />
+
+                <TouchableOpacity
+                  className="w-[40%] m-1 p-2"
+                  onPress={() => {
+                    handleEndDateChange();
+                  }}
+                >
+                  <Text className="py-1 px-2 text-center text-white bg-black/70 rounded-2xl">
+                    change date
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <Text className="m-auto mx-5 text-center text-base border-b border-dashed">
               Trip Date :{" "}
-              {date?.getDate
-                ? `${date?.getDate()}-${date?.getMonth()}-${date?.getFullYear()}`
+              {beginDate?.getDate
+                ? `${beginDate?.getDate()}-${beginDate?.getMonth()}-${beginDate?.getFullYear()}`
+                : `${new Date()?.getDate()}-${new Date()?.getMonth()}-${new Date()?.getFullYear()}`}
+              {" TO "}
+              {endDate?.getDate
+                ? `${endDate?.getDate()}-${endDate?.getMonth()}-${endDate?.getFullYear()}`
                 : `${new Date()?.getDate()}-${new Date()?.getMonth()}-${new Date()?.getFullYear()}`}
             </Text>
           </View>

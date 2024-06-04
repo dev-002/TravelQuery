@@ -36,7 +36,6 @@ export default function Guide_Register({ role, setRole }) {
         mobile: mobile.trim(),
         password: password.trim(),
       });
-      console.log(response.data);
       if (response.status === 201) {
         setLoading(false);
         await AsyncStorage.setItem(

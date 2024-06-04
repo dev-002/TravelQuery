@@ -1,4 +1,6 @@
 const Place = require("../models/place");
+const User = require("../models/user");
+const Guide = require("../models/guide");
 
 const fetchPlace = async (req, res, next) => {
   const { _id } = req.headers;
@@ -64,7 +66,6 @@ const deletePlace = async (req, res, next) => {
   try {
     if (_id) {
       const place = await Place.findByIdAndDelete(_id);
-      console.log("Deletd Place: ", place);
       if (place) {
         return res.status(200).json({ ack: true });
       } else throw new Error("while deleting place");
@@ -78,7 +79,6 @@ const deletePlace = async (req, res, next) => {
 const searchPlace = async (req, res, next) => {
   const { search } = req.body;
 
-  console.log(search);
   try {
     const searchRegex = new RegExp(search, "i");
     let places;
@@ -94,10 +94,67 @@ const searchPlace = async (req, res, next) => {
   }
 };
 
+const addReview = async (req, res, next) => {
+  const data = req.data;
+  const { comment, rating, _id } = req.body;
+  let user;
+
+  try {
+    if (data.role == 2) {
+      user = await User.findOne({ mobile: data.mobile });
+    } else user = await Guide.findOne({ mobile: data.mobile });
+
+    if (user) {
+      const place = await Place.findByIdAndUpdate(
+        _id,
+        { $push: { reviews: { comment, rating, user: user._id } } },
+        { new: true }
+      );
+
+      if (place) {
+        return res.status(200).json({ ack: true, place });
+      }
+    } else throw new Error("No user found");
+  } catch (err) {
+    console.log("Error while adding review: ", err);
+    return res.status(500).json({ ack: false, err });
+  }
+};
+
+const fetchReviews = async (req, res, next) => {
+  const data = req.data;
+  const id = req.headers?.id;
+
+  let user;
+
+  try {
+    if (data.role == 2) {
+      user = await User.findOne({ mobile: data.mobile });
+    } else user = await Guide.findOne({ mobile: data.mobile });
+
+    if (user) {
+      const place = await Place.findByIdAndUpdate(
+        _id,
+        { $push: { reviews: { comment, rating, user: user._id } } },
+        { new: true }
+      );
+
+      if (place) {
+        return res.status(200).json({ ack: true, place });
+      }
+    } else throw new Error("No user found");
+  } catch (err) {
+    console.log("Error while adding review: ", err);
+    return res.status(500).json({ ack: false, err });
+  }
+};
+
 module.exports = {
   fetchPlace,
   addPlace,
   updatePlace,
   deletePlace,
   searchPlace,
+  addReview,
+  fetchReviews,
 };

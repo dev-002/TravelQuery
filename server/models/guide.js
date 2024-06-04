@@ -49,7 +49,7 @@ const guideSchema = Schema({
     default: [],
   },
   travelPlans: {
-    type: { type: Schema.Types.ObjectId, ref: "travelplans" },
+    type: [{ type: Schema.Types.ObjectId, ref: "travelplan" }],
     default: [],
   },
 });

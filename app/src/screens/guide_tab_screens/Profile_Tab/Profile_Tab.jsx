@@ -1,6 +1,7 @@
 import React, { useCallback, useLayoutEffect, useState } from "react";
 import {
   View,
+  StyleSheet,
   Text,
   Image,
   TextInput,
@@ -11,20 +12,26 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { FontAwesome } from "@expo/vector-icons";
 import { Avatar } from "../../../../assets/index";
 import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
 import URL from "../../../../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Dropdown } from "react-native-element-dropdown";
 
 export default function Profile_Tab({ navigation }) {
   // states
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [description, setDescription] = useState("");
   const [mobile, setMobile] = useState(NaN);
   const [gender, setGender] = useState(NaN);
-  const [travelPlan, setTravelPlan] = useState([]);
+  const [isFocus, setIsFocus] = useState(false);
+  const [age, setAge] = useState("");
+  const [price_level, setPrice_Level] = useState("");
+  const [area, setArea] = useState("");
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -32,29 +39,16 @@ export default function Profile_Tab({ navigation }) {
     });
   }, []);
 
-  function NameSplit(name) {
-    const splitName = name?.split(" ");
-    const firstName = splitName?.[0] || "";
-    const lastName = splitName?.[splitName.length - 1] || "";
-    const middleName = splitName?.slice(1, -1).join(" ") || "";
-    return [firstName, middleName, lastName];
-  }
-
-  function getGender(gender) {
-    switch (gender) {
-      case 1:
-        return "Male";
-      case 2:
-        return "Female";
-      case 3:
-        return "Other";
-      default:
-        return "Other";
-    }
-  }
-
   useFocusEffect(
     useCallback(() => {
+      function NameSplit(name) {
+        const splitName = name?.split(" ");
+        const firstName = splitName?.[0] || "";
+        const lastName = splitName?.[splitName.length - 1] || "";
+        const middleName = splitName?.slice(1, -1).join(" ") || "";
+        return [firstName, middleName, lastName];
+      }
+
       async function dataFetch() {
         try {
           setLoading(true);
@@ -64,13 +58,29 @@ export default function Profile_Tab({ navigation }) {
             },
           });
 
-          console.log(response.data);
           if (response.status == 200) {
-            setLoading(false);
-            setName(response.data?.user.name);
-            setMobile(response.data?.user.mobile);
+            const [f, m, l] = NameSplit(response.data?.user.name);
+            setFirstName(f);
+            setMiddleName(m);
+            setLastName(l);
+            setDescription(response.data?.user.description);
+            setAge(response.data?.user.age?.toString());
+            setPrice_Level(response.data?.user.price_level?.toString());
+            let areaArr = response.data?.user.area;
+            let areaText = "";
+            if (areaArr.length > 0) {
+              areaArr.forEach((data, i) => {
+                data = data?.trim();
+                if (i != 0) {
+                  areaText += ", " + data;
+                } else {
+                  areaText += data;
+                }
+              });
+            }
+            setArea(areaText);
+            setMobile(response.data?.user.mobile?.toString());
             setGender(response.data?.user.gender);
-            setTravelPlan(response.data?.user.travelPlan);
             setLoading(false);
           }
         } catch (err) {
@@ -83,6 +93,34 @@ export default function Profile_Tab({ navigation }) {
       dataFetch();
     }, [])
   );
+
+  async function handleUpdate() {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        URL.Profile.updateProfile,
+        {
+          name: `${firstName}${middleName ? `${middleName} ` : " "}${lastName}`,
+          mobile,
+          gender,
+          area: area.length > 0 ? area.split(",") : [],
+          description,
+          price_level: Number(price_level),
+          age: Number(age),
+        },
+        { headers: { token: await AsyncStorage.getItem("token") } }
+      );
+
+      if (response.status === 200) {
+        navigation.navigate("Profile_Tab");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.log("Error while updating profile", err);
+      Alert.alert("Error while updating profile");
+      setLoading(false);
+    }
+  }
 
   async function handleLogout() {
     await AsyncStorage.multiRemove(["token", "role"]);
@@ -97,28 +135,29 @@ export default function Profile_Tab({ navigation }) {
           <Text className="text-4xl text-[#0B646B] font-bold">Profile</Text>
         </View>
 
-        <View className="mt-6 w-[50%] h-24 bg-gray-400 flex justify-center rounded-md items-center justify-center shadow-lg">
+        <View className="mt-6 w-[50%] h-32 flex justify-center rounded-md items-center shadow-lg">
           <Image
             source={Avatar}
             className="w-full h-full rounded-md object-cover"
           />
-          <TouchableOpacity
-            className="w-full rounded-md"
-            onPress={() => console.log("avatar updated")}
-          >
-            <Text className="p-2 bg-blue-500 text-white text-center rounded-b-lg">
-              Update Avatar
-            </Text>
-          </TouchableOpacity>
         </View>
       </View>
 
-      <View className="flex-row items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4">
+      <View className="flex-row items-center justify-between bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4">
         <TouchableOpacity
-          className="mt-2 w-full rounded-md"
+          className="mt-2 w-[43%] rounded-md"
+          onPress={() => handleUpdate()}
+        >
+          <Text className="p-2 bg-yellow-500 text-center rounded-lg">
+            Update
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          className="mt-2 w-[43%] rounded-md"
           onPress={() => handleLogout()}
         >
-          <Text className="p-2 bg-red-500 text-white text-center rounded-b-lg">
+          <Text className="p-2 bg-red-500 text-white text-center rounded-lg">
             Logout
           </Text>
         </TouchableOpacity>
@@ -126,27 +165,30 @@ export default function Profile_Tab({ navigation }) {
 
       {/* Profile Container */}
       {loading ? (
-        <View className=" flex-1 items-center justify-center">
+        <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#0B646B" />
         </View>
       ) : (
         <ScrollView>
-          <View className="w-full px-4 mt-8 flex items-center justify-center flex-wrap">
+          <View className="w-full px-4 mb-20 flex items-center justify-center flex-wrap">
             <View className="w-full my-2 flex-row items-center justify-evenly">
               <TextInput
-                value={NameSplit(name)[0]}
+                value={firstName}
                 placeholder="First Name"
                 className="py-2 px-4 text-md border rounded-lg"
+                onChangeText={(text) => setFirstName(text)}
               />
               <TextInput
-                value={NameSplit(name)[1]}
+                value={middleName}
                 placeholder="Middle Name"
                 className="py-2 px-4 text-md border rounded-lg"
+                onChangeText={(text) => setMiddleName(text)}
               />
               <TextInput
-                value={NameSplit(name)[2]}
+                value={lastName}
                 placeholder="Last Name"
                 className="py-2 px-4 text-md border rounded-lg"
+                onChangeText={(text) => setLastName(text)}
               />
             </View>
 
@@ -157,58 +199,80 @@ export default function Profile_Tab({ navigation }) {
                 placeholder="Mobile"
                 className="w-2/3 py-2 px-4 border rounded-lg"
                 keyboardType="numeric"
-                onTextChange={(text) => setMobile(text)}
+                onChangeText={(text) => setMobile(Number(text))}
                 maxLength={10}
+              />
+            </View>
+
+            <View className="w-full my-2 flex-row justify-evenly items-center">
+              <Text className="w-1/3 text-xl"> Description :</Text>
+              <TextInput
+                value={description}
+                placeholder="Description"
+                className="w-2/3 py-2 px-4 border rounded-lg"
+                onChangeText={(text) => setDescription(text)}
+                multiline
               />
             </View>
 
             <View className="mw-full y-2 flex-row justify-evenly items-center">
               <Text className="w-1/3 text-xl"> Gender :</Text>
-              <TextInput
-                value={getGender(gender)}
-                placeholder="Gender"
+              <Dropdown
                 className="w-2/3 py-2 px-4 border rounded-lg"
-                onTextChange={(text) => {
-                  text = text?.toLowerCase();
-                  switch (text) {
-                    case "male": {
-                      setGender(1);
-                      break;
-                    }
-                    case "female": {
-                      setGender(2);
-                      break;
-                    }
-                    default:
-                      setGender(3);
-                  }
+                style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={[
+                  { label: "Male", value: 1 },
+                  { label: "Female", value: 2 },
+                ]}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? "Select item" : "..."}
+                value={gender}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={(item) => {
+                  setGender(item.value);
+                  setIsFocus(false);
                 }}
               />
             </View>
 
-            <View>
-              <View className="w-full px-2 mt-8 flex-row justify-between">
-                <Text className="text-[#2C7379] text-xl font-bold">
-                  Previous Travels
-                </Text>
-                <TouchableOpacity className="flex-row items-center justify-center space-x-2">
-                  <FontAwesome
-                    name="long-arrow-right"
-                    size={40}
-                    color="#A0C4C7"
-                  />
-                </TouchableOpacity>
-              </View>
+            <View className="w-full my-2 flex-row justify-evenly items-center">
+              <Text className="w-1/3 text-xl"> Area:</Text>
+              <TextInput
+                value={area}
+                placeholder="ABC, XYZ ...."
+                className="w-2/3 py-2 px-4 border rounded-lg"
+                onChangeText={(text) => setArea(text)}
+              />
+            </View>
+            <Text className="text-sm">Separate area with ","</Text>
 
-              <View className="my-2 flex-row justify-evenly">
-                {travelPlan && travelPlan.length > 0 ? (
-                  travelPlan.map((plan, index) => {
-                    return <Text>Plan {index + 1}</Text>;
-                  })
-                ) : (
-                  <Text>No Travel Plans Yet....</Text>
-                )}
-              </View>
+            <View className="w-full my-2 flex-row justify-evenly items-center">
+              <Text className="w-1/3 text-xl"> Age :</Text>
+              <TextInput
+                value={age}
+                placeholder="Age"
+                className="w-2/3 py-2 px-4 border rounded-lg"
+                keyboardType="numeric"
+                onChangeText={(text) => setAge(text)}
+                maxLength={2}
+              />
+            </View>
+
+            <View className="w-full my-2 flex-row justify-evenly items-center">
+              <Text className="w-1/3 text-xl"> Price Level :</Text>
+              <TextInput
+                value={price_level}
+                placeholder="Price level"
+                className="w-2/3 py-2 px-4 border rounded-lg"
+                keyboardType="numeric"
+                onChangeText={(text) => setPrice_Level(text)}
+              />
             </View>
           </View>
         </ScrollView>
@@ -216,3 +280,40 @@ export default function Profile_Tab({ navigation }) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "white",
+    padding: 16,
+  },
+  dropdown: {
+    height: 50,
+    borderColor: "gray",
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  label: {
+    position: "absolute",
+    backgroundColor: "white",
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+});

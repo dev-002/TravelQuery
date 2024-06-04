@@ -40,13 +40,8 @@ const placeSchema = Schema({
     required: true,
   },
   images: { type: [String], default: [] },
-  rating: {
-    type: Number,
-    default: 3.5,
-  },
-  contact: {
-    type: [Number],
-  },
+  rating: { type: Number, default: 3.5 },
+  contact: [Number],
   reviews: {
     type: [
       {

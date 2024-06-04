@@ -217,7 +217,6 @@ export default function AddModal({ navigation }) {
 
           <TouchableOpacity
             onPress={() => {
-              console.log("locate");
               setGeoLocationModal(!geoLocationModal);
             }}
             className="w-2/3"

@@ -5,17 +5,17 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  TextInput,
   ActivityIndicator,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import axios from "axios";
 import URL from "../../../../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TextInput } from "react-native-paper";
 import { GuideAvatar } from "../../../../assets";
 
 export default function Guide_Tab({ navigation }) {
@@ -55,27 +55,51 @@ export default function Guide_Tab({ navigation }) {
     }, [])
   );
 
+  async function searchGuide(text) {
+    try {
+      setLoading(true);
+      setSearch(text);
+      const response = await axios.post(
+        URL.Guide.searchGuide,
+        { search: text },
+        {
+          headers: {
+            token: await AsyncStorage.getItem("token"),
+          },
+        }
+      );
+
+      if (response.status == 200) {
+        setGuide(response.data?.guides);
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.log("Error while searching:", err);
+      Alert.alert("Error while searching guide");
+    }
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-white relative">
       <StatusBar style="dark" />
       <View className="mt-6 flex items-start justify-between px-8">
         <Text className="text-4xl text-[#0B646B] font-bold">Select Guide</Text>
         <Text className="text-2xl text-[#0B646B]">
-          Choose someone with your style
+          Choose someone with your vibe
         </Text>
       </View>
       <ScrollView>
         {/* Search Bar */}
-        <TouchableOpacity
-          onPress={() => handleSearch()}
-          className="mx-4 my-2 p-1 text-base border rounded-lg"
-        >
+        <View className="w-2/3 mx-auto my-3 py-1 px-3 flex-row justify-around text-base border-b rounded-lg">
           <TextInput
             placeholder="Search"
             value={search}
-            onChangeText={(text) => setSearch(text)}
+            onChangeText={(text) => searchGuide(text)}
+            className="w-full"
           />
-        </TouchableOpacity>
+          <MaterialIcons name="search" size={18} color={"#b8b8b7"} />
+        </View>
 
         {loading ? (
           <ActivityIndicator size={"large"} animating={loading} />
@@ -153,7 +177,7 @@ export default function Guide_Tab({ navigation }) {
                               </Text>
                             </React.Fragment>
                           ) : (
-                            i == 3 && <Text>...</Text>
+                            i == 3 && <Text key={i}>...</Text>
                           )
                         )
                       ) : (
@@ -168,9 +192,9 @@ export default function Guide_Tab({ navigation }) {
             </View>
           ))
         ) : (
-          <View className="flex items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4 border-x">
+          <View className="flex items-center bg-white mx-4 rounded-xl py-1 px-4 shadow-lg mt-4 ">
             <Text className="font-bold text-2xl text-center">
-              No Guides Added
+              No Guide Available
             </Text>
           </View>
         )}

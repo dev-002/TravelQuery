@@ -14,6 +14,7 @@ import GuideScreen from "./src/screens/GuideScreen.jsx";
 import Guide_Tabs from "./src/GuideTabs.jsx";
 import TravelPlanDesctiption from "./src/screens/tab_screens/TravelPlanDesctiption.jsx";
 import ExploreScreen from "./src/screens/ExploreScreen.jsx";
+import Guide_TravelPlanDetail from "./src/screens/Guide_TravelPlanDetail.jsx";
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +44,10 @@ export default function App() {
 
           {/* Guide Screens */}
           <Stack.Screen name="Guide_Discover" component={Guide_Tabs} />
+          <Stack.Screen
+            name="Guide_PlanDetail"
+            component={Guide_TravelPlanDetail}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>

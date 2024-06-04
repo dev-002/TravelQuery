@@ -63,7 +63,8 @@ const createPlan = async (req, res, next) => {
     guidesOptedObj = [];
 
   try {
-    const dateObj = new Date(date);
+    const start = new Date(date.start);
+    const end = new Date(date.end);
     await members.map(async (m) => membersObj.push(await new ObjectId(m._id)));
     await placesVisited.map(async (p) =>
       placesVisitedObj.push(await new ObjectId(p._id))
@@ -77,7 +78,7 @@ const createPlan = async (req, res, next) => {
     const travelplan = await TravelPlan.create({
       name,
       description,
-      date: dateObj,
+      date: { start, end },
       members: membersObj,
       totalBudget,
       placesVisited: placesVisitedObj,
@@ -89,18 +90,18 @@ const createPlan = async (req, res, next) => {
       members.map(async (m) => {
         const user = await User.findById(m._id);
         if (user) {
-          user.travelPlans.push(travelplan);
+          user.travelPlans.push(travelplan._id);
           await user.save();
         }
       })
     );
     await Promise.all(
       guidesOpted.map(async (g) => {
-        const guide = await Guide.findById(g._id);
-        if (guide) {
-          guide?.travelPlans.push(travelplan);
-          await guide.save();
-        }
+        await Guide.findByIdAndUpdate(
+          g._id,
+          { $push: { travelPlans: travelplan._id } },
+          { new: true }
+        );
       })
     );
 
@@ -178,6 +179,10 @@ const deletePlan = async (req, res, next) => {
 
     if (travelplan) {
       user.travelPlans = user.travelPlans?.filter((t) => t._id !== _id);
+      await travelplan.guidesOpted?.map(async (guide_id) => {
+        const guide = await Guide.findById(guide_id);
+        guide.travelPlans = guide.travelPlans?.filter((t) => t._id !== _id);
+      });
       await user.save();
 
       res.status(200).json({ ack: true, travelplan });

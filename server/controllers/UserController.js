@@ -1,9 +1,7 @@
 const User = require("../models/user");
 
 const getUser = async (req, res, next) => {
-  console.log("Hey rote");
   const data = req.data;
-  console.log(data);
   try {
     const user = await User.findOne({ name: data.name });
     if (user) {

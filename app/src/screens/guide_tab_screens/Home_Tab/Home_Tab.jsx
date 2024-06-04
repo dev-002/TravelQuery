@@ -20,8 +20,8 @@ import { useFocusEffect } from "@react-navigation/native";
 
 export default function Discover_Tab({ navigation }) {
   const [loading, setLoading] = useState(false);
-  const [areas, setAreas] = useState([]);
   const [travelPlans, setTravelPlans] = useState([]);
+  const [quote, setQuote] = useState("");
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -31,27 +31,6 @@ export default function Discover_Tab({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      async function fetchGuideArea() {
-        try {
-          setLoading(true);
-
-          const response = await axios.get(URL.Guide.fetchGuideArea, {
-            headers: {
-              token: await AsyncStorage.getItem("token"),
-            },
-          });
-
-          if (response.status === 200) {
-            setAreas(response.data?.areas);
-            setInterval(() => setLoading(false), 2000);
-          }
-        } catch (err) {
-          console.log("Error while fetching Places", err);
-          Alert.alert("Error fetching places");
-          setLoading(false);
-        }
-      }
-
       async function fetchTravels() {
         try {
           setLoading(true);
@@ -62,7 +41,6 @@ export default function Discover_Tab({ navigation }) {
             },
           });
 
-          console.log(response.data);
           if (response.status === 200) {
             setTravelPlans(response.data?.travelplans);
             setInterval(() => setLoading(false), 2000);
@@ -74,11 +52,29 @@ export default function Discover_Tab({ navigation }) {
         }
       }
 
-      fetchGuideArea();
+      async function fetchQuotes() {
+        try {
+          setLoading(true);
+          const response = await axios.get(URL.Guide.quoteGen, {
+            headers: {
+              token: await AsyncStorage.getItem("token"),
+            },
+          });
+          if (response.status === 200) {
+            setLoading(false);
+            setQuote(response.data.quote);
+          }
+        } catch (err) {
+          console.log("Error while fetching quote", err);
+          setLoading(false);
+        }
+      }
+
+      fetchQuotes();
       fetchTravels();
 
       return () => {
-        // Add cleanup logic here if needed
+        // cleanup logic if needed
       };
     }, [])
   );
@@ -88,8 +84,8 @@ export default function Discover_Tab({ navigation }) {
       <StatusBar style="dark" />
       <View className="flex-row items-center justify-between px-8">
         <View>
-          <Text className="text-[40px] text-[#0B646B] font-bold">Discover</Text>
-          <Text className="text-[#527283] text-[36px]">the beauty today</Text>
+          <Text className="text-[40px] text-[#0B646B] font-bold">Explore</Text>
+          <Text className="text-[#527283] text-[36px]">the travels</Text>
         </View>
 
         <View className="w-12 h-12 bg-gray-400 rounded-md items-center justify-center shadow-lg">
@@ -110,30 +106,12 @@ export default function Discover_Tab({ navigation }) {
           <View>
             <View className="flex-row items-center justify-between px-4 mt-8">
               <Text className="text-[#2C7379] text-[28px] font-bold">
-                Top Tips
+                Tips for Safety
               </Text>
-              <TouchableOpacity className="flex-row items-center justify-center space-x-2">
-                <Text className="text-[#A0C4C7] text-[20px] font-bold">
-                  Explore
-                </Text>
-                <FontAwesome
-                  name="long-arrow-right"
-                  size={24}
-                  color="#A0C4C7"
-                />
-              </TouchableOpacity>
             </View>
 
             <View className="px-4 mt-8 flex-row items-center justify-evenly flex-wrap">
-              {areas?.length > 0 ? (
-                areas?.map((data, i) => (
-                  <View key={i}>
-                    <Text>{data}</Text>
-                  </View>
-                ))
-              ) : (
-                <Text className="text-lg text-center"> No area specified</Text>
-              )}
+              <Text className="text-base text-wrap">{quote && quote}</Text>
             </View>
           </View>
 
@@ -148,12 +126,54 @@ export default function Discover_Tab({ navigation }) {
               <View className="px-4 mt-8 flex-wrap">
                 {travelPlans?.length > 0 ? (
                   travelPlans?.map((data, i) => (
-                    <View key={i} className="w-full">
-                      <Text className="font-bold text-lg">{data?.name}</Text>
-                      <Text className="text-base">{data?.description}</Text>
-                      <Text className="text-base">{data?.totalBudget}</Text>
-                      <Text className="text-base">{data?.totalTripDays}</Text>
-                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate("Guide_PlanDetail", {
+                          travelPlan: data,
+                        });
+                      }}
+                      key={i}
+                      className="w-full p-1 my-2 bg-blue-600/40 border rounded-lg"
+                    >
+                      <View className="py-1 px-2 bg-gray-100 border rounded-xl">
+                        <View className="w-[70%] flex-row items-center">
+                          <Text className="font-bold text-xl text-[#050C9C]">
+                            {data?.name}
+                          </Text>
+                        </View>
+
+                        <Text className="text-lg text-blue-800">
+                          Plan Details{" "}
+                        </Text>
+                        <View className="flex-row items-center">
+                          <Text className="text-base font-bold text-[#074173]">
+                            Plan Description:{"   "}
+                          </Text>
+                          <Text className="text-base text-[#3C5B6F]">
+                            {data?.description}
+                          </Text>
+                        </View>
+
+                        <View className="w-[70%] flex-row items-center justify-between">
+                          <View className="flex-row items-center">
+                            <Text className="text-base font-bold text-[#074173]">
+                              Plan Budget:{"   "}
+                            </Text>
+                            <Text className="text-base text-[#3C5B6F]">
+                              {data?.totalBudget}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center">
+                            <Text className="text-base font-bold text-[#074173]">
+                              Trip Days:{"   "}
+                            </Text>
+                            <Text className="text-base text-[#3C5B6F]">
+                              {data?.totalTripDays}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
                   ))
                 ) : (
                   <View className="mt-5 w-full items-center space-y-8 justify-center">
