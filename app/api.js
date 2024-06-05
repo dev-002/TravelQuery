@@ -1,5 +1,4 @@
-const baseURL = "http://192.168.1.35:5000/api/v1";
-// const baseURL = "https://travelquery-api.onrender.com/api/v1";
+const baseURL = "https://travelquery-api.onrender.com/api/v1";
 
 export default {
   Auth: {
