@@ -13,8 +13,11 @@ import URL from "../../../../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Btn from "./Btn";
+import { useNavigation } from "@react-navigation/native";
 
 export default function User_Register({ role, setRole }) {
+  const navigation = useNavigation();
+
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [gender, setGender] = useState(null);

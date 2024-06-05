@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "TravelQuery",
+    "slug": "travelqueryapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/App_Logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/plane.gif",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/App_Logo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBs4uzkeJnc0q54SMm8V0xPZjR0WNUbnpk"
+        }
+      },
+      "package": "com.dev002.travelquery"
+    },
+    "web": {
+      "favicon": "./assets/App_Logo.png"
+    },
+    "owner": "dev-002",
+    "extra": {
+      "eas": {
+        "projectId": "706f4ca5-f571-48b4-ba84-d930146c85cc"
+      }
+    }
+  }
+}

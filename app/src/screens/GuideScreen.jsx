@@ -15,7 +15,7 @@ import {
   FontAwesome,
   FontAwesome5,
   MaterialCommunityIcons,
-  MaterialIcons,
+  FontAwesome6,
 } from "@expo/vector-icons";
 import { GuideAvatar } from "../../assets";
 import axios from "axios";
@@ -145,7 +145,7 @@ export default function GuideScreen({ route }) {
 
           <View className=" flex-row items-center space-x-2">
             <View className="w-10 h-10 rounded-xl bg-[#a7dcdc] items-center justify-center shadow-md">
-              <MaterialIcons name="attach-money" size={24} color="black" />
+              <FontAwesome6 name="indian-rupee-sign" size={24} color="black" />
             </View>
             {guide?.price_level ? (
               <View>
@@ -169,7 +169,10 @@ export default function GuideScreen({ route }) {
           {guide?.rating && (
             <View className=" flex-row items-center space-x-2">
               {[...Array(5)].map((_, index) => (
-                <View className="w-10 h-10 rounded-xl bg-red-100 items-center justify-center shadow-md">
+                <View
+                  key={index}
+                  className="w-10 h-10 rounded-xl bg-red-100 items-center justify-center shadow-md"
+                >
                   <FontAwesome
                     key={index}
                     name={
